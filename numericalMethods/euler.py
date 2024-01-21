@@ -3,7 +3,7 @@ import math
 import numpy as np
 import sys
 
-def f(y):
+def f(t,y):
     ''' Definicao da EDO'''
     f = -y/100
     return f
@@ -18,10 +18,10 @@ def euler(t,tf,n):
     tempos[0] = t
     delta_t = (tf-t)/n
     for i in range(0,n):
-        y[i+1] = y[i] + f(y[i])*delta_t
+        y[i+1] = y[i] + f(tempos[i], y[i])*delta_t
         tempos[i+1] = tempos[i] + delta_t
 
-    erro = abs(solucao(100) - y[n-1])
+    erro = abs(solucao(tf) - y[n-1])
     
     return delta_t, erro, tempos, y
 
@@ -41,41 +41,41 @@ def main():
     k = 20 #Quantidade de iteracoes
     deltas = [0]*(k-2)
     erros = [0]*(k-2)
-    tempoTotal = 500
+    tempoFinal = 500
     
     for i in range(2,k):
          n = 2**i
-         metodo = euler(0, tempoTotal, n)
+         metodo = euler(0, tempoFinal, n)
          deltas[i-2], erros[i-2] = metodo[0:2]
          plt.plot(metodo[2],metodo[3], color='black')
          plt.xlabel('t')
          plt.ylabel('y(t)')
          plt.title('Convergência do Método de Euler')
          
-    with open('table.txt', 'w') as file:
-    # Redirect the standard output to the file
+    with open('numericalMethods/table.txt', 'w') as file:
+        # Redirect the standard output to the file
         sys.stdout = file
         
-        # Your existing code
-        print("Passo(Delta t) | Erro Absoluto")
-        print("="*39)
+        print(r"\hline\hline \\")
+        print(r"Passo(Delta t) & Erro Absoluto \\\\")
+        print(r"\hline\hline \\")
         
         for i in range(len(deltas)):
-            print("    %f    |"%deltas[i], end="")
-            print("    %f  "%erros[i])
-        print("="*39)
+            print("    %f    &"%deltas[i], end="")
+            print("    %f  "%erros[i] + r" \\")
+        print(r"\hline\hline")
         
         # Reset the standard output to the console
         sys.stdout = sys.__stdout__
     
-    plt.savefig('convergencia.png')
+    plt.savefig('numericalMethods/convergencia.png')
     plt.show()
     
-    X = np.linspace(0, tempoTotal, 1024)
-    Y = np.linspace(0, tempoTotal, 1024)
+    X = np.linspace(0, tempoFinal, 1024)
+    Y = np.linspace(0, tempoFinal, 1024)
     for i in range(len(X)):
         Y[i] = solucao(X[i])
-    aprox = euler(0,tempoTotal,n)
+    aprox = euler(0, tempoFinal, n)
     
     plt.plot(aprox[2],aprox[3], color='black', linestyle=(0,(1,1,3,1)),
              label = f'Aproximação numérica com n = {n}')
@@ -84,7 +84,7 @@ def main():
     plt.ylabel('y(t)')
     plt.title('Comparação entre o Método Numérico e a Solução Exata')
     plt.legend()
-    plt.savefig('comparacao.png')
+    plt.savefig('numericalMethods/comparacao.png')
     plt.show()
 
 main()
