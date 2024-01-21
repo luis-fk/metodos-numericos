@@ -24,19 +24,23 @@ int main() {
     int numberOfBodies {0};
     double number {0}, timeInterval {0}, steps {0};
 
+    /* Os primeiros dados a serem lidos sao o numero de corpos,
+       o intervalo de tempo (delta T) e o numero de passos (iteracoes) */
     ifstream data ("data.txt");
     data >> numberOfBodies;
     data >> timeInterval;
     data >> steps;
 
+    /* Creates an array of bodyInfo of the size of numberOfBodies */
     bodyInfo* body = new bodyInfo[numberOfBodies];
     
+    /* Creates and initializes de distance double for each body */
     for (int i = 0; i < numberOfBodies; ++i) {
         body[i].distance = new double[numberOfBodies];
 
         for (int j = 0; j < 3; ++j) {
             body[i].distance[j] = 0;
-    }
+        }
     }
 
     /* Stores the initial data for position, velocty and mass of each body */
@@ -76,6 +80,8 @@ int main() {
         }
         output << "\n";
         
+        // if (abs(body[0].distance[1]) > 30)
+        //     return 0;
     }
 
     for (int i = 0; i < numberOfBodies; ++i) {
@@ -163,7 +169,3 @@ void update(bodyInfo *body, double timeInterval, int numberOfBodies) {
 
     return;   
 }
-
-
-
-
