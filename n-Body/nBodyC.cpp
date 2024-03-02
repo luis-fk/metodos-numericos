@@ -73,15 +73,17 @@ int main() {
 
         update(body, timeInterval, numberOfBodies);
         
-        for (int i = 0; i < numberOfBodies; i++) {
-            for (int k = 0; k < 3; k++){
-                output << body[i].position[k] << " ";
+        if (i % 35 == 0) {
+            for (int i = 0; i < numberOfBodies; i++) {
+                for (int k = 0; k < 3; k++){
+                    output << body[i].position[k] << " ";
+
+                    // if (abs(body[i].position[k]) > 10)
+                    //     return 0;
+                }
             }
+            output << "\n";
         }
-        output << "\n";
-        
-        // if (abs(body[0].distance[1]) > 30)
-        //     return 0;
     }
 
     for (int i = 0; i < numberOfBodies; ++i) {
@@ -153,7 +155,6 @@ void calculateAcceleration(bodyInfo *body, int numberOfBodies) {
             body[i].acceleration[k] = body[i].force[k] / body[i].mass;
         }
     }
-
     return;   
 }
 
@@ -166,6 +167,5 @@ void update(bodyInfo *body, double timeInterval, int numberOfBodies) {
             body[i].position[k] = body[i].position[k] + (timeInterval * body[i].velocity[k]);
         }
     }
-
     return;   
 }

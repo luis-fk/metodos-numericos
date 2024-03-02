@@ -38,31 +38,35 @@ def solucao(t):
 def main():
     ''' Programa principal que realiza o metodo de Euler k vezes onde a cada
     realizacao o intervalo utilizado no metodo e da forma 1/2^k'''
-    k = 20 #Quantidade de iteracoes
+    k = 18 #Quantidade de iteracoes
     deltas = [0]*(k-2)
     erros = [0]*(k-2)
+    nArr = [0]*(k-2)
     tempoFinal = 500
     
     for i in range(2,k):
          n = 2**i
+         nArr[i-2] = n
          metodo = euler(0, tempoFinal, n)
          deltas[i-2], erros[i-2] = metodo[0:2]
-         plt.plot(metodo[2],metodo[3], color='black')
+         plt.plot(metodo[2], metodo[3], color='black')
          plt.xlabel('t')
          plt.ylabel('y(t)')
-         plt.title('Convergência do Método de Euler')
+         plt.title('Convergência do Método de Runge-Kutta de 4° ordem')
          
     with open('numericalMethods/table.txt', 'w') as file:
         # Redirect the standard output to the file
         sys.stdout = file
         
-        print(r"\hline\hline \\")
-        print(r"Passo(Delta t) & Erro Absoluto \\\\")
+        print(r"\hline\hline\h \\")
+        print(r" n & Passo(Delta t) & $|e(t,h)|$ & $q=\frac{|e(t,2h)|}{|e(t,h)|}$ \\\\")
         print(r"\hline\hline \\")
         
-        for i in range(len(deltas)):
-            print("    %f    &"%deltas[i], end="")
-            print("    %f  "%erros[i] + r" \\")
+        for i in range(len(deltas)):    
+            if i >= 1:
+                print(fr"{nArr[i]} & {deltas[i]:.6f} & {erros[i]:.6f} & {erros[i-1]/erros[i]:.6f} \\")
+            else:
+                print(fr"{nArr[i]} & {deltas[i]:.6f} & {erros[i]:.6f} \\")
         print(r"\hline\hline")
         
         # Reset the standard output to the console
@@ -88,3 +92,5 @@ def main():
     plt.show()
 
 main()
+    
+

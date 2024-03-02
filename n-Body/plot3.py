@@ -25,7 +25,7 @@ ax.axis('off')
 lines = [ax.plot(walk[:,0], walk[:,1], walk[:,2])[0] for walk in walks]
 
 # Set the zoomed-in range
-zoom_factor = 0.2  # Adjust the zoom factor as needed
+zoom_factor = 0.8  # Adjust the zoom factor as needed
 ax.set_xlim3d([data.min() * zoom_factor, data.max() * zoom_factor])
 ax.set_ylim3d([data.min() * zoom_factor, data.max() * zoom_factor])
 ax.set_zlim3d([data.min() * zoom_factor, data.max() * zoom_factor])
@@ -34,7 +34,7 @@ sc_a = ax.scatter(data_a[:, 0], data_a[:, 1], data_a[:, 2], label='A')
 sc_b = ax.scatter(data_b[:, 0], data_b[:, 1], data_b[:, 2], label='B')
 sc_c = ax.scatter(data_c[:, 0], data_c[:, 1], data_c[:, 2], label='C')
 
-trail_length = 50000
+trail_length = 100
 current_position_size_a = 10
 current_position_size_b = 10
 current_position_size_c = 10
@@ -71,7 +71,7 @@ def update_lines(num, walks, lines):
     fig.canvas.draw()
     return lines
 
-skip_interval = 4000
+skip_interval = 10
 
 # Criar a animação
 ani = animation.FuncAnimation(
@@ -82,5 +82,5 @@ ani = animation.FuncAnimation(
     interval=0.001, 
     blit=False)
 
-#plt.show()
-ani.save('animation.gif', writer='pillow', fps=120)
+plt.show()
+#ani.save('animation.gif', writer='pillow', fps=120)

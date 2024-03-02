@@ -1,0 +1,178 @@
+\documentclass[a4paper, 12pt]{article} %determina a folha e o tamanho da fonte
+\usepackage{graphicx} % Required for inserting images
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry} %determina a formatação da folha
+\usepackage[utf8]{inputenc} %insere uma biblioteca para acentos em português
+\usepackage{graphicx} %pacote para inserir imagens
+\usepackage{float} %pacote para imagem para conseguir ter a opção de [H]
+\usepackage[brazil]{babel} %pacote para deixar a legenda da imagem em portugues
+\usepackage{indentfirst} %coloca o paragrafo onde deve ter
+\usepackage{multirow} %pra ter duas lihas juntadas na tabela
+\usepackage{hyperref} 
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{xurl}
+
+\title{Métodos Numéricos - N corpos}
+\author{Joao  Felipe de Souza Melo}
+
+
+\newcommand{\largerbox}[1]{\href{#1}{\fcolorbox{green}{white}{\strut#1}}}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+
+    % Text at the top
+    \textbf{\large UNIVERSIDADE DE SÃO PAULO \\
+        ESCOLA POLITÉCNICA \\
+        MAP3122 - MÉTODOS NUMÉRICOS E APLICAÇÕES}
+    \vspace{1.0cm} 
+    
+    \includegraphics[width=1\textwidth]{poli.jpg}  
+    
+    \vspace{1cm}  
+
+    Felipe Luís Korbes - 13682893 \\
+    João Felipe de Souza Melo - 13682913 \\
+    
+    \vspace{0.5cm}
+    
+    \textbf{Professor:} Alexandre Megiorin Roma \\
+    
+    \vfill 
+    São Paulo \\
+    \today
+
+\end{titlepage}
+
+\section{Introdução}
+\subsection{Motivação}
+A escolha do tema pela dupla recaiu sobre o problema dos 3 corpos \cite{n-Body} \cite{astro}. Essa decisão foi motivada tanto pela análise dos desafios propostos pelo Professor no Moodle \cite{moodle} quanto pela  experiência anterior com um projeto semelhante na disciplina de MAC2166 - Introdução à Computação. Naquela ocasião, embora o enfoque estivesse mais na programação do que na parte matemática, conseguimos explorar aspectos relacionados ao problema em um contexto bidimensional.
+
+\subsection{O Problema}
+O problema dos três corpos é uma questão matemática que modela as trajetórias orbitais de três planetas. Apesar de não haver uma solução geral para esse problema, Karl F. Sundman \cite{sundman} apresentou, em 1912, uma solução analítica na forma de uma série de potências, caracterizada por uma convergência extremamente lenta. Portanto, para calcular as órbitas desses planetas, faz-se necessário recorrer a métodos numéricos, os quais serão o foco deste trabalho.
+
+É importante destacar que existem casos específicos do problema dos três corpos que possuem famílias de soluções conhecidas. Contudo, por terem soluções exatas, esses casos também impõem restrições nas condições do sistema. Até o momento, o objetivo deste trabalho é tomar um modelo genérico de três corpos, como a Terra, Lua e o Sol, e aplicar métodos numéricos para aproximar suas órbitas.
+
+Além do escopo dos três corpos, o cálculo das órbitas dos planetas é crucial para a projeção futura dos corpos celestes em nosso sistema solar. Um exemplo disso se dá através do rastreamento e a previsão da posição de asteroides que possam representar algum tipo de ameaça à Terra, permitindo a tomada de medidas preventivas para evitar danos significativos. Além disso, o cálculo de órbitas não se limita apenas a planetas, estende-se também ao posicionamento preciso de satélites em órbita da Terra que requerem uma precisão significativa em seus cálculos de órbita para garantir o seu funcionamento correto.
+
+\section{Abordagem}
+\subsection{Modelagem}
+O problema dos 3 corpos começa com um processo de modelagem relativamente complexo, evoluindo para a necessidade de aplicação efetiva de métodos numéricos ao final. Em particular, ao considerarmos o caso específico de 3 corpos, onde nos deparamos com a tarefa de resolver um sistema de 3 equações diferenciais de segunda ordem, uma para cada corpo, como visto a seguir.
+
+\begin{equation}\label{eq:1}
+    \begin{cases}
+      \Ddot{r}_1 &= -{Gm_2} \frac{(\mathbf{r}_1 - \mathbf{r}_2)}{|\mathbf{r}_1 - \mathbf{r}_2|^3} -{Gm_3} \frac{(\mathbf{r}_1 - \mathbf{r}_3)}{|\mathbf{r}_1 - \mathbf{r}_3|^3} \\[10pt]
+
+      \Ddot{r}_2 &= -{Gm_1} \frac{(\mathbf{r}_2 - \mathbf{r}_1)}{|\mathbf{r}_2 - \mathbf{r}_1|^3} -{Gm_3} \frac{(\mathbf{r}_2 - \mathbf{r}_3)}{|\mathbf{r}_2 - \mathbf{r}_3|^3} \\[10pt]
+      
+      \Ddot{r}_3 &= -{Gm_2} \frac{(\mathbf{r}_3 - \mathbf{r}_2)}{|\mathbf{r}_3 - \mathbf{r}_2|^3} -{Gm_1} \frac{(\mathbf{r}_3 - \mathbf{r}_1)}{|\mathbf{r}_3 - \mathbf{r}_1|^3} \\
+    \end{cases}
+\end{equation} 
+
+É evidente que cada corpo que compõe nosso sistema introduz 6 variáveis de estado - 3 para a posição e 3 para a velocidade. Assim, em um sistema com 3 corpos, encontramos um total de 18 variáveis de estado.
+
+Transformando o sistema \eqref{eq:1} em um sistema de equações diferenciais de primeira ordem, obtemos
+
+\begin{equation}\label{eq:primeiraOrdem}
+    \begin{cases}
+      \mathbf{{y_1}} &= \mathbf{\dot{r}_1}  \\
+        
+      \mathbf{\dot{y}_1} &= -{Gm_2} \frac{(\mathbf{r}_1 - \mathbf{r}_2)}{|\mathbf{r}_1 - \mathbf{r}_2|^3} -{Gm_3} \frac{(\mathbf{r}_1 - \mathbf{r}_3)}{|\mathbf{r}_1 - \mathbf{r}_3|^3} \\[10pt]
+
+      \mathbf{{y}_2} &= \mathbf{\dot{r}_2} \\
+      
+      \mathbf{\dot{y}_2} &= -{Gm_1} \frac{(\mathbf{r}_2 - \mathbf{r}_1)}{|\mathbf{r}_2 - \mathbf{r}_1|^3} -{Gm_3} \frac{(\mathbf{r}_2 - \mathbf{r}_3)}{|\mathbf{r}_2 - \mathbf{r}_3|^3} \\[10pt]
+
+      \mathbf{{y}_3} &= \mathbf{\dot{r}_3} \\
+      \mathbf{\dot{y}_3} &= -{Gm_2} \frac{(\mathbf{r}_3 - \mathbf{r}_2)}{|\mathbf{r}_3 - \mathbf{r}_2|^3} -{Gm_1} \frac{(\mathbf{r}_3 - \mathbf{r}_1)}{|\mathbf{r}_3 - \mathbf{r}_1|^3} \\
+    \end{cases}
+\end{equation} \\
+
+Dessa equação, $\mathbf{y_1}$, $\mathbf{y_2}$ e $\mathbf{y_3}$ representam os vetores velocidade de cada corpo nos três eixos cartesianos. Os valores $\mathbf{\dot{y}_1}$, $\mathbf{\dot{y}_2}$ e $\mathbf{\dot{y}_3}$ indicam os vetores de aceleração de cada corpo em cada eixo. Além disso, $G$ denota a constante da gravitação universal, $m_1$, $m_2$ e $m_3$ as massas individuais, e $\mathbf{r}_1$, $\mathbf{r}_2$ e $\mathbf{r}_3$ os vetores de posição de cada corpo. Todas as unidades estão no Sistema Internacional de medidas. As condições iniciais do sistema serão específicas para o problema a ser abordado, ainda não decididas. Por exemplo, se escolhermos o sistema Terra, Lua e Sol, as condições iniciais serão as posições e velocidades desses três corpos.
+
+A resolução desse sistema envolverá inicialmente o cálculo da aceleração $\mathbf{\dot{y}_1}$, $\mathbf{\dot{y}_2}$ e $\mathbf{\dot{y}_3}$ utilizando a lei de gravitação universal de Newton para cada corpo. Com isso, as velocidades serão calculadas através de um método numérico para $\mathbf{\dot{y}_1}$, $\mathbf{\dot{y}_2}$ e $\mathbf{\dot{y}_3}$. Finalmente, as posições serão calculadas com o mesmo método numérico para $\mathbf{\dot{r}_1}$, $\mathbf{\dot{r}_2}$ e $\mathbf{\dot{r}_3}$. Dessa forma, obteremos as posições $\mathbf{r}_1$, $\mathbf{r}_2$ e $\mathbf{r}_3$ atualizadas de todos os corpos, permitindo avançar para a próxima etapa de interação.
+
+\subsection{Processo Computacional}
+
+No presente momento, usando um método simples como o de Euler, o processo para obter a aceleração segue os seguintes passos:
+\begin{enumerate}\label{passos}
+    \item Cálculo da distância entre todos os corpos do sistema.
+    \item Com a distância entre os corpos, ocorre a decomposição da força nos eixos ${x}$, ${y}$ e ${z}$. Em seguida, é realizada a soma das forças em cada corpo para cada um dos eixos.
+    \item Com a força calculada, procede-se ao cálculo da aceleração de cada corpo em cada um dos eixos.
+    \item Finalmente, realiza-se a atualização da velocidade e posição de cada corpo, resultando em 3 novas velocidades e 3 novas posições para cada um. Neste ponto em específico é que aplicamos o método de Euler.
+\end{enumerate}
+
+Este processo computacional permite a obtenção das informações dinâmicas necessárias para simular o comportamento do sistema de 3 corpos ao longo do tempo.
+
+\subsection{Progresso do Relatório}
+Até o momento, desenvolvemos um código em C++ que implementa o processo descrito na seção \ref{passos} para simular o comportamento de um sistema de N corpos. Este código retorna as coordenadas ${x}$, ${y}$ e ${z}$ ao longo do tempo para cada corpo do sistema. Além disso, foi implementado em Python o Runge-Kutta de 4 passos e também já foi testado em um problema de Cauchy unidimensional, cujo detalhes e tabela de convergência pode ser visto na seção \ref{sec:depuracao}. Ainda não fizemos a depuração computacional para o problema de 3 corpos, pois ainda temos duvidas de como prosseguir com o teste, algo que ficará para a próxima entrega. 
+
+Os próximos passos no desenvolvimento do projeto incluem uma investigação mais detalhada das técnicas de integração implícita, bem como a exploração de outros métodos, como o Método das Aproximações Sucessivas (MAS).
+
+
+\section{Depuração computacional}\label{sec:depuracao}
+Será utilizado o seguinte problema para a depuração computacional
+
+\begin{equation}\label{eq:1}
+    y'(t)=-\frac{y(t)}{100}.
+\end{equation}.
+
+Cuja solução geral é
+
+\begin{equation}\label{eq:2}
+    y(t)=200e^{-{t/100}}.
+\end{equation}
+
+E a modelagem do problema fica 
+
+\begin{equation}\label{eq:3}
+    f(t,y)= -\frac{y}{100}.
+\end{equation}
+
+O que resulta na seguinte tabela de convergência para Runge-Kutta de 4 passos
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{rcccc}
+    
+        \hline\hline\ \\
+         n & Passo(Delta t) & $|e(t,h)|$ & $q=\frac{|e(t,2h)|}{|e(t,h)|}$ \\\\
+        \hline\hline \\
+        4 & 25.000000 & 0.002952 \\
+        8 & 12.500000 & 0.000166 & 17.764943 \\
+        16 & 6.250000 & 0.000010 & 16.857376 \\
+        32 & 3.125000 & 0.000001 & 16.422616 \\
+        64 & 1.562500 & 0.000000 & 16.209814 \\
+        128 & 0.781250 & 0.000000 & 16.104625 \\
+        256 & 0.390625 & 0.000000 & 16.058964 \\
+        \hline\hline
+    \end{tabular}
+    \caption{Erro de discretização global e suas razões}{para o Método de Runge-Kutta de 4 Passos}
+    \label{tab1}
+\end{table}
+
+\newpage
+\begin{thebibliography}{99} 
+
+    \bibitem{sundman}
+     Barrow-Green, J. (2010). \href{http://oro.open.ac.uk/22440/2/Sundman_final.pdf}{The dramatic episode of Sundman}, Historia Mathematica 37, pp. 164–203.
+
+    \bibitem{n-Body}
+    n-Body Problem \url{https://en.wikipedia.org/wiki/N-body_problem}
+
+    \bibitem{astro}
+    BATE, R. R.; MUELLER, D. D.; WHITE, J. E. Fundamentals of Astrodynamics.
+
+    \bibitem{moodle}
+    Página da disciplina no Moodle \url{https://edisciplinas.usp.br/course/view.php?id=115492}
+
+    \bibitem{git}
+    Respositório com todos os códigos \url{https://github.com/luis-fk/metodos-numericos}
+
+\end{thebibliography}
+
+\end{document}
+
+
