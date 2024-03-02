@@ -44,14 +44,14 @@ def main():
     data = np.loadtxt(r'D:\Studies\programacao\nbody\metodos-numericos\numericalMethods\output.txt')
     
     # Separar os dados para cada corpo
-    coordenadasX = data[:, 3:6]
-    coordenadasY = np.arange(len(coordenadasX))
+    coordenadasY = data[:, 3:6]
+    coordenadasX = np.arange(len(coordenadasY))
     
     
     # coordenadasY = data[:, 3:6]
     # coordenadasZ = data[:, 6:]
-    polinomios = spline(coordenadasX[:, 0] ,coordenadasY)
-    plt.scatter(coordenadasX[:, 0], coordenadasY)
+    polinomios = spline(coordenadasX ,coordenadasY[:, 0])
+    plt.scatter(coordenadasX, coordenadasY[:, 0])
     plt.xlabel('Posição X')
     plt.ylabel('Tempo')
     print(polinomios)
