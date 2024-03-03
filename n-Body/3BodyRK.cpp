@@ -113,23 +113,16 @@ void RungeKuta44(bodyInfo *body, double timeInterval) {
 
 void phiFunction(bodyInfo *body, double timeInterval, int body1, int body2, 
                    int body3, int coordinate) {
-    double k1v, k2v, k3v, k4v, k1r, k2r, k3r, k4r, phiv, phir;
+    double k1, k2, k3, k4, phi;
 
-    k1v = velocity(0, body1, body2, body3, body, coordinate);
-    k2v = velocity(k1v*(timeInterval/2), body1, body2, body3, body, coordinate);
-    k3v = velocity(k2v*(timeInterval/2), body1, body2, body3, body, coordinate);
-    k4v = velocity(k3v*timeInterval, body1, body2, body3, body, coordinate);
-    phiv = (k1v + 2*k2v + 2*k3v + k4v)/6;
+    k1 = velocity(0, body1, body2, body3, body, coordinate);
+    k2 = velocity(k1*(timeInterval/2), body1, body2, body3, body, coordinate);
+    k3 = velocity(k2*(timeInterval/2), body1, body2, body3, body, coordinate);
+    k4 = velocity(k3*timeInterval, body1, body2, body3, body, coordinate);
+    phi = (k1 + 2*k2 + 2*k3 + k4)/6;
 
-    body[body1].velocity[coordinate] = body[body1].velocity[coordinate] + timeInterval*phiv;
-
-    k1r = body[body1].velocity[coordinate];
-    k2r = body[body1].velocity[coordinate] + k1v/2;
-    k3r = body[body1].velocity[coordinate] + k2v/2;
-    k4r = body[body1].velocity[coordinate] + k3v;
-    phir = (k1r + 2*k2r + 2*k3r + k4r)/6;
-
-    body[body1].position[coordinate] = body[body1].position[coordinate] + timeInterval*phir;
+    body[body1].velocity[coordinate] = body[body1].velocity[coordinate] + timeInterval*phi;
+    body[body1].position[coordinate] = body[body1].position[coordinate] + timeInterval*body[body1].velocity[coordinate];
 }
 
 double velocity(double factor, int body1, int body2, int body3, bodyInfo *body, int coordinate) {
