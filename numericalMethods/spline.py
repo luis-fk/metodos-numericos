@@ -41,20 +41,18 @@ def spline(x, y):
 
 def main():
     # Ler os dados do arquivo
-    data = np.loadtxt(r'D:\Studies\programacao\nbody\metodos-numericos\numericalMethods\output.txt')
+    data = np.loadtxt('inputs-outputs/output.txt')
     
     # Separar os dados para cada corpo
     coordenadasY = data[:, 3:6]
     coordenadasX = np.arange(len(coordenadasY))
-    
-    
     # coordenadasY = data[:, 3:6]
     # coordenadasZ = data[:, 6:]
+    
     polinomios = spline(coordenadasX ,coordenadasY[:, 0])
-    plt.scatter(coordenadasX, coordenadasY[:, 0])
+    plt.scatter(coordenadasX, coordenadasY[:, 0], zorder=3, s=20, color='black')
     plt.xlabel('Posição X')
     plt.ylabel('Tempo')
-    print(polinomios)
     for key, value in polinomios.items():
         def polinomio(x):
             return eval(value['eq'])
@@ -62,7 +60,7 @@ def main():
         plt.plot(t, polinomio(t), label=f"$S_{key}(x)$")
 
     # plt.legend()
-    plt.savefig('spline.png')
+    plt.savefig('imagens/spline.png')
 
 main()
     

@@ -1,136 +1,171 @@
-#include <stdio.h>
-#include <cmath.h>
 #include <iostream>
+#include <cmath>
 #include <fstream>
-#include <string>
+#include <chrono>
 using namespace std;
 
-double calculateDistance(double bodies[][2], int i, int j);
-double calculateForce(double bodiesPosition[][2], double bodiesMass[], double distance[2][][], int i, int j, int k);
-void atualize(double *x, double *y, double *vx, double *vy, double ax, double ay, double dt);
+struct bodyInfo {
+    double position[3] {0};
+    double velocity[3] {0};
+    double mass {0};
+    double *distance {0};
+    double force[3] {0};
+    double acceleration[3] {0};
+};
+
+void calculateDistance(bodyInfo *body, int numberOfBodies);
+void calculateForce(bodyInfo *body, int numberOfBodies);
+void calculateAcceleration(bodyInfo *body, int numberOfBodies);
+void update(bodyInfo *body, double timeInterval, int numberOfBodies);
 
 int main() {
-    ifstream myfile ("data.txt");
-    double number;
-    int numberOfBodies, timeInterval, totalTime, currentTime {0}, iterations {0};
-    double distancia, forca, acelaracao;
+    auto start_time = std::chrono::high_resolution_clock::now();
 
-    myfile >> numberOfBodies;
-    myfile >> timeInterval;
-    myfile >> totalTime;
+    int numberOfBodies {0};
+    double number {0}, timeInterval {0}, steps {0};
 
-    struct body {
-        double position[numberOfBodies][2] {};
-        double velocty[numberOfBodies][2] {};
-        double mass {};
-        double distance[numberOfBodies][numberOfBodies][2] {};
-        double force[numberOfBodies][numberOfBodies][2] {};
-        double acceleration[numberOfBodies][numberOfBodies][2] {};
-    };
+    /* Os primeiros dados a serem lidos sao o numero de corpos,
+       o intervalo de tempo (delta T) e o numero de passos (iteracoes) */
+    ifstream data ("data.txt");
+    data >> numberOfBodies;
+    data >> timeInterval;
+    data >> steps;
 
-    // double bodiesPosition[numberOfBodies][2];
-    // double bodiesVelocity[numberOfBodies][2];
-    // double bodiesMass[numberOfBodies];
-
-    // double distance[numberOfBodies-1][numberOfBodies-1][2];
-    // double force[numberOfBodies-1][numberOfBodies-1][2];
-    // double acceleration[numberOfBodies-1][2];
+    /* Creates an array of bodyInfo of the size of numberOfBodies */
+    bodyInfo* body = new bodyInfo[numberOfBodies];
     
-    while (myfile >> number){
-        for(int i = 0; i < numberOfBodies; i++)
-            for(int j = 0; j < 7; j++){
-                if (j < 3)
-                    bodiesPosition[i][j] = number; 
-                else if (j < 6)      
-                    bodiesVelocity[i][j] = number;
-                else 
-                    bodiesMass[numberOfBodies] = number;
-            }               
-    }
-    
-    while (currentTime < totalTime)
-    {
-        /*calcula a distancia entre os corpos*/
-        for (int i = 0; i <= numberOfBodies; i++) //iteration for each body
-            for (int k = 0; k < 3; k++) // iteration for each coordinate (x, y, z)
-                for (int j = 0; j <= numberOfBodies; j++) // iteration for interaction with each body
-                    if (i != j)
-                        distance[i][j][k] = calculateDistance(bodiesPosition, i, j);
-                    else
-                        distance[i][j][k] = -1;
+    /* Creates and initializes de distance double for each body */
+    for (int i = 0; i < numberOfBodies; ++i) {
+        body[i].distance = new double[numberOfBodies];
 
-        for (int i = 0; i <= numberOfBodies; i++) //iteration for each body
-            for (int k = 0; k < 3; k++) // iteration for each coordinate (x, y, z)
-                for (int j = 0; j <= numberOfBodies; j++) // iteration for interaction with each body
-                    if (i != j)
-                        force[i][j][k] = calculateDistance(bodiesPosition, bodiesMass, distance, i, j);
-                    else
-                        force[i][j][k] = -1;
-    
-
-        for (int i = 0; i <= numberOfBodies; i++) //iteration for each body
-            for (int k = 0; k < 3; k++) // iteration for each coordinate (x, y, z)
-                for (int j = 0; j <= numberOfBodies; j++) // iteration for interaction with each body
-                    if (i != j)
-                        acceleration[i][k] = force[i][j][k]
-                    else
-                        force[i][j][k] = -1;
-        /*calcula a acelaracao causada pelas forcas nos eixos x e y para cada corpo*/
-        ax0 = fgx0 / m0;
-        ay0 = fgy0 / m0;
-
-        ax1 = fgx1 / m1;
-        ay1 = fgy1 / m1;
-
-        ax2 = fgx2 / m2;
-        ay2 = fgy2 / m2;
-
-        /*funcao que atualiza os valores da posicao de velocidade de cada corpo*/
-        atualize(&rx0, &ry0, &vx0, &vy0, ax0, ay0, dt);
-        atualize(&rx1, &ry1, &vx1, &vy1, ax1, ay1, dt);
-        atualize(&rx2, &ry2, &vx2, &vy2, ax2, ay2, dt);
-
-        printf("%g %g %g %g %g %g\n", rx0, ry0, rx1, ry1, rx2, ry2);
-
-        j = j + dt;
+        for (int j = 0; j < 3; ++j) {
+            body[i].distance[j] = 0;
+        }
     }
 
-return 0;
+    /* Stores the initial data for position, velocty and mass of each body */
+    for(int i = 0; i < numberOfBodies; i++) {
+        for(int j = 0; j < 3; j++) {
+            data >> number;
+            body[i].position[j] = number;
+        }
+
+        for(int j = 0; j < 3; j++) {
+            data >> number;
+            body[i].velocity[j] = number;
+        }
+
+        data >> number;
+        body[i].mass = number;
+    }             
+
+    data.close();
+
+    ofstream output ("output.txt");
+    output << scientific;
+
+    for (int i = 1; i < steps; i++) {
+        calculateDistance(body, numberOfBodies);
+
+        calculateForce(body, numberOfBodies);
+
+        calculateAcceleration(body, numberOfBodies);
+
+        update(body, timeInterval, numberOfBodies);
+        
+        if (i % 1 == 0) {
+            for (int i = 0; i < numberOfBodies; i++) {
+                for (int k = 0; k < 3; k++){
+                    output << body[i].position[k] << " ";
+
+                    // if (abs(body[i].position[k]) > 10)
+                    //     return 0;
+                }
+            }
+            output << "\n";
+        }
+    }
+
+    for (int i = 0; i < numberOfBodies; ++i) {
+        delete body[i].distance;
+    }
+    delete[] body;
+    output.close();
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time);
+    std::cout << "Time taken by function: " << duration.count() << " seconds" << std::endl;
+
+    return 0;
 }
 
+/*calcula a distancia entre os corpos*/
+void calculateDistance(bodyInfo *body, int numberOfBodies) {
+    double x, y, z;
 
-double calculateDistance(double bodiesPosition[][2], int i,int j){
-    double x, y, z, distancia;
+    /* Here, one body [i] will be selected to have its distance calculated compared
+       to every other body in the system */
+    for (int i = 0; i < numberOfBodies; i++) {
+        /* This is where body [i] will have its distance calculated in respect
+            to all the other [j] bodies */
+        for (int j = i + 1; j < numberOfBodies; j++) {
+            x = body[i].position[0] - body[j].position[0];
+            y = body[i].position[1] - body[j].position[1];
+            z = body[i].position[2] - body[j].position[2];
+            
+            body[i].distance[j] = sqrt((x*x) + (y*y) + (z*z));
+            body[j].distance[i] = body[i].distance[j];
+        }
+    }
 
-    x = bodiesPosition[i][0] - bodiesPosition[j][0];
-    y = bodiesPosition[i][1] - bodiesPosition[j][1];
-    z = bodiesPosition[i][2] - bodiesPosition[j][2];
-
-    distancia = (x*x) + (y*y) + (z*z);
-    return sqrt(distancia);
+    return;       
 }
 
-double calculateForce(double bodiesPosition[][2], double bodiesMass[], double distance[2][][]
-             int i, int j, int k) {
+void calculateForce(bodyInfo *body, int numberOfBodies) {
     double mass1, mass2, distanceCubed, distanceSubtracted;
-    mass1 = bodiesMass[i];
-    mass2 = bodiesMass[j];
-    distanceCubed = pow(distance[i][j][k], 3);
-    distanceSubtracted = bodiesPosition[i][2]-bodiesPosition[j][2];
 
-    return 6.6743e-11*((mass1*mass2)/distanceCubed)*distanceSubtracted;
-                                    
+    /* Here, one body [i] will be selected to have its distance calculated compared
+       to every other body in the system */
+    for (int i = 0; i < numberOfBodies; i++) {
+        /* Iteration for each on of the coordinates (x, y, z) */
+        for (int k = 0; k < 3; k++) {
+            /* This is where body [i] will have its distance calculated in respect
+               to all the other [j] bodies */
+            body[i].force[k] = 0;
+            for (int j = 0; j < numberOfBodies; j++) {
+                if (i != j) {
+                    mass1 = body[i].mass;
+                    mass2 = body[j].mass;
+                    distanceCubed = pow(body[i].distance[j], 3);
+                    distanceSubtracted = body[j].position[k] - body[i].position[k];
+
+                    body[i].force[k] += 6.6743e-11*((mass1*mass2)/distanceCubed)*distanceSubtracted;
+                }
+            }
+        }
+    }    
+
+    return;                          
 }
 
-void atualize(double *x, double *y, double *vx, double *vy, double ax, double ay, double dt)
-{
-    *vx = (*vx) + (dt * ax);
-    *vy = (*vy) + (dt * ay);
-
-    *y = (*y) + (dt * (*vy));
-    *x = (*x) + (dt * (*vx));
+void calculateAcceleration(bodyInfo *body, int numberOfBodies) {
+    /* Calculate the acceleration of everybody on x, y and z */
+    for (int i = 0; i < numberOfBodies; i++) {
+        for (int k = 0; k < 3; k++) {
+            body[i].acceleration[k] = body[i].force[k] / body[i].mass;
+        }
+    }
+    return;   
 }
 
-
-
-
+void update(bodyInfo *body, double timeInterval, int numberOfBodies) {
+    /* Updates the velocity and position of each body using a basic Euler method
+       of step integration */
+    for (int i = 0; i < numberOfBodies; i++) {
+        for (int k = 0; k < 3; k++) {
+            body[i].velocity[k] = body[i].velocity[k] + (timeInterval * body[i].acceleration[k]);
+            body[i].position[k] = body[i].position[k] + (timeInterval * body[i].velocity[k]);
+        }
+    }
+    return;   
+}

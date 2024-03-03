@@ -3,42 +3,27 @@ import math
 import numpy as np
 import sys
 
-#############################################################################
 def phi(t,y,dt,f):
-    # define discretization function 
 
     k1 = f(t, y)
     k2 = f(t+dt/2, y + dt/2*k1)
     k3 = f(t+dt/2, y + dt/2*k2)
     k4 = f(t+dt, y + dt*k3)
     
-    return (1/6)*(k1 + 2*k2 + 2*k3 + k4)    # classical RK-44
-    # return k1    # euler method
-    
-############################################################################
-############################################################################
+    return (1/6)*(k1 + 2*k2 + 2*k3 + k4)   
+
 
 def f(t, y):
-    # input n-dim ode system right hand side: f=(f0,f1,...,fn-1)
-    # ATTENTION: Python arrays and lists start at index "0" !!!!
-    
     f0 =  -y*0.00001 # cos(x) - função
-    #f1 = -y[0] # -sen(x) - derivada da função
-    
-    #return np.array([f0,f1])
     return (f0)
-    
-############################################################################
+
 
 def solucao(t):
-    '''Solucaoo da EDO calculada na questao 1 da tarefa 1'''
     s =(10000)*(math.exp((-t)*0.00001))
     return (s)
 
-############################################################################
 
 def rungeKutta(t, tf, n):
-    
     t_n = [(t)]
     T = (tf)        # time interval: t in [t0,T]
     y_n = [(10000)]  # initial condition
@@ -48,20 +33,14 @@ def rungeKutta(t, tf, n):
         y_n.append(y_n[-1] + dt*phi(t_n[-1],y_n[-1],dt,f))
         t_n.append(t_n[-1] + dt)
         
-
-        # dt = min(dt, T-t_n[-1])
-    
     y_n = np.array(y_n)
     erro = abs(solucao(tf) - y_n[-1])
     print(solucao(tf), y_n[-1])
-    # print('solucao(tf) e ', type(solucao(tf)))
 
     return (T-t)/n, erro, t_n, y_n
     
     
 def main():
-    ''' Programa principal que realiza o metodo de Euler k vezes onde a cada
-    realizacao o intervalo utilizado no metodo e da forma 1/2^k'''
     k = 10 #Quantidade de iteracoes
     deltas = [0]*(k-2)
     erros = [0]*(k-2)
@@ -78,7 +57,7 @@ def main():
          plt.ylabel('y(t)')
          plt.title('Convergência do Método de Runge-Kutta de 4° ordem')
          
-    with open('table1.txt', 'w') as file:
+    with open('inputs-outputs/table.txt', 'w') as file:
         # Redirect the standard output to the file
         sys.stdout = file
         
@@ -96,7 +75,7 @@ def main():
         # Reset the standard output to the console
         sys.stdout = sys.__stdout__
     
-    plt.savefig('convergencia.png')
+    plt.savefig('imagens/convergencia.png')
     # plt.show()
     
     X = np.linspace(0, tempoFinal, 1024)
@@ -112,7 +91,7 @@ def main():
     plt.ylabel('y(t)')
     plt.title('Comparação entre o Método Numérico e a Solução Exata')
     plt.legend()
-    plt.savefig('comparacao.png')
+    plt.savefig('imagens/comparacao.png')
     # plt.show()
 
 main()
