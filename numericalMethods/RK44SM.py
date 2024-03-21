@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import math
 import numpy as np
 import sys
 
@@ -12,48 +11,34 @@ def phi(t,y,dt,f):
     
     return (1/6)*(k1 + 2*k2 + 2*k3 + k4)   
 
-def phi2(t,y1, y2, y3, dt,f):
-
-    k1 = f(t, y1, y2, y3)
-    k2 = f(t+dt/2, y1 + (dt/2)*k1, y2 + (dt/2)*k1, y3 + (dt/2)*k1)
-    k3 = f(t+dt/2, y1 + (dt/2)*k2, y2 + (dt/2)*k2, y3 + (dt/2)*k2)
-    k4 = f(t+dt, y1 + dt*k3, y2 + dt*k3, y3 + dt*k3)
-    
-    return (1/6)*(k1 + 2*k2 + 2*k3 + k4)   
-
-
 def f1(t, y):
     f1 =  y
     return (f1)
 
 
 def f2(t, y):
-    f2 =  y
+    f2 =  -4*y
     return (f2)
 
 
-def f3(t, y1, y2, y3):
-    f3 =  -6*y3 - 12*y2 - 8*y1
-    return (f3)
-
-
 def solucao(t):
-    s = np.exp(-2*t) + (4*np.exp(-2*t)*t) + (6*np.exp(-2*t)*(t**2))
+    s = 2*np.cos(2*t) + 1/2*np.sin(2*t)
     return (s)
 
 
 def rungeKutta(t, tf, n):
     t_n = [(t)]
     T = (tf)        # time interval: t in [t0,T]
-    y1 = [(1)]  # initial condition
-    y2 = [(2)]
-    y3 = [(0)]
+    y1 = [(2)]  # initial condition
+    y2 = [(1)]
     
     dt = ((T-t_n[-1])/n)
     while t_n[-1] < T:
-        y3.append(y3[-1] + dt*phi2(t_n[-1], y1[-1], y2[-1], y3[-1], dt, f3))
-        y2.append(y2[-1] + dt*phi(t_n[-1], y3[-2], dt, f2))
-        y1.append(y1[-1] + dt*phi(t_n[-1], y2[-2], dt, f1))
+        y1Temp = y1[-1] + dt*phi(t_n[-1], y2[-1], dt, f1)
+        y2Temp = y2[-1] + dt*phi(t_n[-1], y1[-1], dt, f2)
+        
+        y1.append(y1Temp)
+        y2.append(y2Temp)
         t_n.append(t_n[-1] + dt)
     
     y = np.array(y1)
