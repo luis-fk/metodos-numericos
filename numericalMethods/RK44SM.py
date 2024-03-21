@@ -12,40 +12,63 @@ def phi(t,y,dt,f):
     
     return (1/6)*(k1 + 2*k2 + 2*k3 + k4)   
 
+def phi2(t,y1, y2, y3, dt,f):
 
-def f(t, y):
-    f0 =  -y*0.00001
-    return (f0)
+    k1 = f(t, y1, y2, y3)
+    k2 = f(t+dt/2, y1 + (dt/2)*k1, y2 + (dt/2)*k1, y3 + (dt/2)*k1)
+    k3 = f(t+dt/2, y1 + (dt/2)*k2, y2 + (dt/2)*k2, y3 + (dt/2)*k2)
+    k4 = f(t+dt, y1 + dt*k3, y2 + dt*k3, y3 + dt*k3)
+    
+    return (1/6)*(k1 + 2*k2 + 2*k3 + k4)   
+
+
+def f1(t, y):
+    f1 =  y
+    return (f1)
+
+
+def f2(t, y):
+    f2 =  y
+    return (f2)
+
+
+def f3(t, y1, y2, y3):
+    f3 =  -6*y3 - 12*y2 - 8*y1
+    return (f3)
 
 
 def solucao(t):
-    s =(10000)*(math.exp((-t)*0.00001))
+    s = np.exp(-2*t) + (4*np.exp(-2*t)*t) + (6*np.exp(-2*t)*(t**2))
     return (s)
 
 
 def rungeKutta(t, tf, n):
     t_n = [(t)]
     T = (tf)        # time interval: t in [t0,T]
-    y_n = [(10000)]  # initial condition
+    y1 = [(1)]  # initial condition
+    y2 = [(2)]
+    y3 = [(0)]
     
     dt = ((T-t_n[-1])/n)
     while t_n[-1] < T:
-        y_n.append(y_n[-1] + dt*phi(t_n[-1],y_n[-1],dt,f))
+        y3.append(y3[-1] + dt*phi2(t_n[-1], y1[-1], y2[-1], y3[-1], dt, f3))
+        y2.append(y2[-1] + dt*phi(t_n[-1], y3[-2], dt, f2))
+        y1.append(y1[-1] + dt*phi(t_n[-1], y2[-2], dt, f1))
         t_n.append(t_n[-1] + dt)
-        
-    y_n = np.array(y_n)
-    erro = abs(solucao(tf) - y_n[-1])
-    print(solucao(tf), y_n[-1])
+    
+    y = np.array(y1)
+    erro = abs(solucao(tf) - y[-1])
+    print(solucao(tf), y[-1])
 
-    return (T-t)/n, erro, t_n, y_n
+    return (T-t)/n, erro, t_n, y
     
     
 def main():
-    k = 10 #Quantidade de iteracoes
+    k = 16 #Quantidade de iteracoes
     deltas = [0]*(k-2)
     erros = [0]*(k-2)
     nArr = [0]*(k-2)
-    tempoFinal = 100000
+    tempoFinal = 1
     
     for i in range(2,k):
          n = 2**i
