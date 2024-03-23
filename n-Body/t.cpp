@@ -139,7 +139,7 @@ void calculateForce(bodyInfo *body, int numberOfBodies) {
                     distanceCubed = pow(body[i].distance[j], 3);
                     distanceSubtracted = body[j].position[k] - body[i].position[k];
 
-                    body[i].force[k] += 6.6743e-11*((mass1*mass2)/distanceCubed)*distanceSubtracted;
+                    body[i].force[k] += -6.6743e-11*((mass1*mass2)/distanceCubed)*distanceSubtracted;
                 }
             }
         }
