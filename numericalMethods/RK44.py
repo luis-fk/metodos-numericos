@@ -14,19 +14,19 @@ def phi(t,y,dt,f):
 
 
 def f(t, y):
-    f0 =  -y*0.00001
+    f0 =  -1.2*y + 7*np.exp(-0.3*t)
     return (f0)
 
 
 def solucao(t):
-    s =(10000)*(math.exp((-t)*0.00001))
+    s = (70/9)*np.exp(-0.3*t) - (43/9)*np.exp(-1.2*t)
     return (s)
 
 
 def rungeKutta(t, tf, n):
     t_n = [(t)]
-    T = (tf)        # time interval: t in [t0,T]
-    y_n = [(10000)]  # initial condition
+    T = (tf)
+    y_n = [(3)]
     
     dt = ((T-t_n[-1])/n)
     while t_n[-1] < T:
@@ -41,11 +41,11 @@ def rungeKutta(t, tf, n):
     
     
 def main():
-    k = 10 #Quantidade de iteracoes
+    k = 8 #Quantidade de iteracoes
     deltas = [0]*(k-2)
     erros = [0]*(k-2)
     nArr = [0]*(k-2)
-    tempoFinal = 100000
+    tempoFinal = 1
     
     for i in range(2,k):
          n = 2**i
@@ -56,6 +56,7 @@ def main():
          plt.xlabel('t')
          plt.ylabel('y(t)')
          plt.title('Convergência do Método de Runge-Kutta de 4° ordem')
+         plt.show()
          
     with open('inputs-outputs/table.txt', 'w') as file:
         # Redirect the standard output to the file
@@ -76,7 +77,7 @@ def main():
         sys.stdout = sys.__stdout__
     
     plt.savefig('imagens/convergencia.png')
-    # plt.show()
+    
     
     X = np.linspace(0, tempoFinal, 1024)
     Y = np.linspace(0, tempoFinal, 1024)
@@ -92,7 +93,7 @@ def main():
     plt.title('Comparação entre o Método Numérico e a Solução Exata')
     plt.legend()
     plt.savefig('imagens/comparacao.png')
-    # plt.show()
+    plt.show()
 
 main()
     

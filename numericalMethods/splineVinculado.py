@@ -16,19 +16,19 @@ def spline(x, y):
         matrizA.append(linhas)
     matrizA.append([0]*(n-2) + [h[n-2]] + [2*h[n-2]])
     
-    ###############################
-    # mudar derivadas aqui abaixo #
-    ###############################
-    matrizB = [(3/h[0])*(a[1]-a[0]) - 3*np.exp(0)] 
+    ##########################
+    # mudar derivadas abaixo #
+    ##########################
+    matrizB = [(3/h[0])*(a[1]-a[0]) - 3*(np.exp(0))] 
     for k in range(1, n-1):
         linhas = 3*((a[k+1]-a[k])/h[k]) - 3*((a[k]-a[k-1])/h[k-1])
         matrizB.append(linhas)
-    matrizB.append(3*np.exp(n-1) - (3/h[n-2])*(a[n-1]-a[n-2]))
+    matrizB.append(3*(np.exp(n-1)) - (3/h[n-2])*(a[n-1]-a[n-2]))
 
     
     c = dict(zip(range(n), crout.solucaoTridiagonal(matrizA, matrizB)))
-    #c = dict(zip(range(n), np.linalg.solve(matrizA, matrizB)))
-    #print(c, c1)
+    c1 = dict(zip(range(n), np.linalg.solve(matrizA, matrizB)))
+    print(c, c1)
     
     b = {}
     d = {}
