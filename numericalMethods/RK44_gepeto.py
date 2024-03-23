@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.constants as constants
 import sys
 import math
 # Define o tipo de dados para precisão dupla
@@ -9,7 +8,7 @@ dp = np.float64
 # Ordem da ODE
 m = 18
 G = 6.6743e-11
-m1 = 11.9885e30
+m1 = 1.9885e30
 m2 = 5.972e27
 m3 = 7.342e22
 
@@ -18,32 +17,32 @@ def f(x, Yvec):
     Função f que calcula o vetor f.
     """
     
-    distancia12 = (math.sqrt((Yvec[0]-Yvec[6])**2 + (Yvec[1]-Yvec[7])**2 + (Yvec[2]-Yvec[8])**2))**(3)
-    distancia13 = ((Yvec[0]-Yvec[12])**2 + (Yvec[1]-Yvec[13])**2 + (Yvec[2]-Yvec[14])**2)**(3/2)
-    distancia23 = ((Yvec[6]-Yvec[12])**2 + (Yvec[7]-Yvec[13])**2 + (Yvec[8]-Yvec[14])**2)**(3/2)
+    distancia12 = (((Yvec[0]-Yvec[6])**2  + (Yvec[1]-Yvec[7])**2  + (Yvec[2]-Yvec[8])**2))**(3/2)
+    distancia13 = (((Yvec[0]-Yvec[12])**2 + (Yvec[1]-Yvec[13])**2 + (Yvec[2]-Yvec[14])**2))**(3/2)
+    distancia23 = (((Yvec[6]-Yvec[12])**2 + (Yvec[7]-Yvec[13])**2 + (Yvec[8]-Yvec[14])**2))**(3/2)
 
     fvec = np.zeros(m, dtype=dp)
     
     fvec[0] = Yvec[3] # x1
     fvec[1] = Yvec[4] # y1
     fvec[2] = Yvec[5] # z1
-    fvec[3] = -G*(m2*((Yvec[0]-Yvec[6])/distancia12) - m3*((Yvec[0]-Yvec[12])/distancia13)) #vx1
-    fvec[4] = -G*(m2*((Yvec[1]-Yvec[7])/distancia12) - m3*((Yvec[1]-Yvec[13])/distancia13)) # vy2
-    fvec[5] = -G*(m2*((Yvec[2]-Yvec[8])/distancia12) - m3*((Yvec[2]-Yvec[14])/distancia13)) # vz3
+    fvec[3] = -G*(m2*((Yvec[0]-Yvec[6])/distancia12) + m3*((Yvec[0]-Yvec[12])/distancia13)) # vx1
+    fvec[4] = -G*(m2*((Yvec[1]-Yvec[7])/distancia12) + m3*((Yvec[1]-Yvec[13])/distancia13)) # vy2
+    fvec[5] = -G*(m2*((Yvec[2]-Yvec[8])/distancia12) + m3*((Yvec[2]-Yvec[14])/distancia13)) # vz3
  
     fvec[6] = Yvec[9]  # x2
     fvec[7] = Yvec[10] # y2
     fvec[8] = Yvec[11] # z2
-    fvec[9] =  -G*(m1*((Yvec[6]-Yvec[0])/distancia12) - m3*((Yvec[6]-Yvec[12])/distancia23)) #vx2
-    fvec[10] = -G*(m1*((Yvec[7]-Yvec[1])/distancia12) - m3*((Yvec[7]-Yvec[13])/distancia23)) # vy2
-    fvec[11] = -G*(m1*((Yvec[8]-Yvec[2])/distancia12) - m3*((Yvec[8]-Yvec[14])/distancia23)) # vz3
+    fvec[9] =  -G*(m1*((Yvec[6]-Yvec[0])/distancia12) + m3*((Yvec[6]-Yvec[12])/distancia23)) # vx2
+    fvec[10] = -G*(m1*((Yvec[7]-Yvec[1])/distancia12) + m3*((Yvec[7]-Yvec[13])/distancia23)) # vy2
+    fvec[11] = -G*(m1*((Yvec[8]-Yvec[2])/distancia12) + m3*((Yvec[8]-Yvec[14])/distancia23)) # vz3
     
     fvec[12] = Yvec[15] # x3
     fvec[13] = Yvec[16] # y3
     fvec[14] = Yvec[17] # z3
-    fvec[15] = -G*(m1*((Yvec[12]-Yvec[0])/distancia13) - m2*((Yvec[12]-Yvec[6])/distancia23)) # vx3
-    fvec[16] = -G*(m1*((Yvec[13]-Yvec[1])/distancia13) - m2*((Yvec[13]-Yvec[7])/distancia23)) # vy3
-    fvec[17] = -G*(m1*((Yvec[14]-Yvec[2])/distancia13) - m2*((Yvec[14]-Yvec[8])/distancia23)) # vz3
+    fvec[15] = -G*(m1*((Yvec[12]-Yvec[0])/distancia13) + m2*((Yvec[12]-Yvec[6])/distancia23)) # vx3
+    fvec[16] = -G*(m1*((Yvec[13]-Yvec[1])/distancia13) + m2*((Yvec[13]-Yvec[7])/distancia23)) # vy3
+    fvec[17] = -G*(m1*((Yvec[14]-Yvec[2])/distancia13) + m2*((Yvec[14]-Yvec[8])/distancia23)) # vz3
 
     return fvec
 
@@ -63,10 +62,11 @@ def rungeKutta(t0, tf, n):
     t_n = [t0]
     T = tf
     y_k = np.zeros((n+1, m))  # Matriz para armazenar y_k em cada passo
-    
-    y_k[0] = [        0, 0, 1000, 0,  0, 0,  # sol
-                 1.47095e11, 1000, 0, 0, 30290, 0,  # terra
-              136732000000, 1000, 0, 0, 35290, 0]  # luz
+
+
+    y_k[0] = [0, 0, 0, 0, 0, 0,  # sol
+              1.47095e11, 0, 0, 0, 30290, 0,  # terra
+              136732000000, 0, 0, 0, 35290, 0]  # lua
 
     dt = (T - t0) / n
 
@@ -92,7 +92,7 @@ def main():
     k = 14  # Quantidade de iterações
     deltas = [0] * (k - 2)
     nArr = [0] * (k - 2)
-    tempoFinal = 100000000000
+    tempoFinal = 4320000
     
     tempo = []
     cores = [ 'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', 'orange', 'purple', 'brown', 'pink', 'gray', 'olive', 'aqua', 'lime']
@@ -134,7 +134,7 @@ def main():
             print(r"\hline\hline \\")
             
             for i in range(k-3):    
-                if i >= 3:
+                if i >= 2:
                     numerator = imagens[j][i+1][-1] - imagens[j][i][-1]
                     denominator = imagens[j][i][-1] - imagens[j][i-1][-1]
                     if denominator == 0 or numerator == 0:
