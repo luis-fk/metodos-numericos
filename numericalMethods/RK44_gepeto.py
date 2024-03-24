@@ -8,9 +8,9 @@ dp = np.float64
 # Ordem da ODE
 m = 18
 G = 6.6743e-11
-m1 = 1.9885e30
-m2 = 5.972e27
-m3 = 7.342e22
+m1 = 1.989e30
+m2 = 5.972e24
+m3 = 7.3476e22
 
 def f(x, Yvec):
     """
@@ -65,8 +65,8 @@ def rungeKutta(t0, tf, n):
 
 
     y_k[0] = [0, 0, 0, 0, 0, 0,  # sol
-              1.47095e11, 0, 0, 0, 30290, 0,  # terra
-              136732000000, 0, 0, 0, 35290, 0]  # lua
+              1.5e11, 0, 0, 0, 29885, 0,  # terra
+              1.52e11, 0, 0, 0, 30284, 0]  # lua
 
     dt = (T - t0) / n
 
@@ -89,10 +89,10 @@ def solucao(tf):
     return np.array(solucao)
 
 def main():
-    k = 14  # Quantidade de iterações
+    k = 12  # Quantidade de iterações
     deltas = [0] * (k - 2)
     nArr = [0] * (k - 2)
-    tempoFinal = 4320000
+    tempoFinal = 31536000
     
     tempo = []
     cores = [ 'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', 'orange', 'purple', 'brown', 'pink', 'gray', 'olive', 'aqua', 'lime']
@@ -114,14 +114,25 @@ def main():
     for j in range(m):
         for i in range(k-2):
             plt.plot(tempo[i], imagens[j][i], label = f'n = {nArr[i]}', color=cores[i])  # Plotando apenas a primeira coluna de y_k
-            plt.xlabel('Tempo')
-            plt.ylabel(f'y$_{j}$(t)')
+            plt.xlabel('Tempo (s)')
+            plt.ylabel('Posição (m)')
             plt.legend()
-            plt.title(f'Convergência do Método de Runge-Kutta de 4ª ordem para a variável y$_{j+1}$')
+            plt.title(f'Convergência do Método de Runge-Kutta de 4ª ordem')
             plt.savefig(f'imagens/convergencia{j+1}.png')
         plt.clf()
     
     deltas = np.array(deltas)
+    
+    with open('inputs-outputs/dados1.txt', 'w') as f:
+        for i in range(len(tempo[9])):
+            if i % 100 == 0:
+                f.write(str(tempo[9][i]) + ' ' + str(imagens[7][9][i]) + '\n')
+            
+    with open('inputs-outputs/dados2.txt', 'w') as f:
+        for i in range(len(tempo[9])):
+            if i % 100 == 0:
+                f.write(str(tempo[9][i]) + ' ' + str(imagens[10][9][i]) + '\n')
+    
 
     with open('inputs-outputs/table1.txt', 'w') as file:
         # Redirect the standard output to the file
@@ -130,7 +141,7 @@ def main():
             print("tabela ", j)
             print("\n")
             print(r"\hline\hline\ \\")
-            print(r" n & Passo(Delta t) & $\nu(t,h)$ & $log_{2}($\lvert frac{\nu(t,2h)-\nu(t,h)}{\nu(t,h)-\nu(t,h/2))} \\\\")
+            print(r"n & Passo (Delta t) & $\eta(t,h)$ & $log_{2}(\lvert \frac{\eta(t,2h)-\eta(t,h)}{\eta(t,h)-\eta(t,h/2))}\lvert$) \\\\")
             print(r"\hline\hline \\")
             
             for i in range(k-3):    

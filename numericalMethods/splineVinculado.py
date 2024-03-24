@@ -27,8 +27,8 @@ def spline(x, y):
 
     
     c = dict(zip(range(n), crout.solucaoTridiagonal(matrizA, matrizB)))
-    c1 = dict(zip(range(n), np.linalg.solve(matrizA, matrizB)))
-    print(c, c1)
+    #c1 = dict(zip(range(n), np.linalg.solve(matrizA, matrizB)))
+
     
     b = {}
     d = {}
@@ -58,8 +58,9 @@ def main():
     
     polinomios = spline(coordenadasX ,coordenadasY)
     plt.scatter(coordenadasX, coordenadasY, zorder=3, s=20, color='black')
-    plt.xlabel('Posição X')
-    plt.ylabel('Tempo')
+    plt.xlabel('Valor de x')
+    plt.ylabel('Valor de y')
+    plt.title(f'Comparação entre o Método de Spline Vinculado e a função exponencial')
     for key, value in polinomios.items():
         def polinomio(x):
             return eval(value['eq'])

@@ -114,7 +114,13 @@ def main():
     deltas = np.array(deltas)
     erros = np.array(erros)
 
-
+    norma2 = []
+    for j in range(m):
+        aux = []
+        for i in range(k-2):    
+            aux.append(erros[i][j]**2)
+        norma2.append(math.sqrt(sum(aux)))        
+    
     with open('inputs-outputs/table1.txt', 'w') as file:
         # Redirect the standard output to the file
         sys.stdout = file

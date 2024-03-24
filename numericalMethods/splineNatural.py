@@ -42,18 +42,19 @@ def spline(x, y):
 
 def main():
     # Ler os dados do arquivo
-    data = np.loadtxt('inputs-outputs/output.txt')
+    data = np.loadtxt('inputs-outputs/dados1.txt')
     
     # Separar os dados para cada corpo
-    coordenadasY = data
-    coordenadasX = np.arange(len(coordenadasY))
+    coordenadasY = data[:, 1]
+    coordenadasX = data[:, 0]
     # coordenadasY = data[:, 3:6]
     # coordenadasZ = data[:, 6:]
     
     polinomios = spline(coordenadasX ,coordenadasY)
     plt.scatter(coordenadasX, coordenadasY, zorder=3, s=20, color='black')
-    plt.xlabel('Posição X')
-    plt.ylabel('Tempo')
+    plt.xlabel('Valor de x')
+    plt.ylabel('Valor de y')
+    plt.title(f'Comparação entre o Método de Spline Natural e a função exponencial')
     for key, value in polinomios.items():
         def polinomio(x):
             return eval(value['eq'])
