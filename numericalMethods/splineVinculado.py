@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import crout
 
-def spline(x, y):
+def spline(x, y, derivada, var):
     n = len(x)
     a = {k: v for k, v in enumerate(y)}
     h = {k: x[k+1] - x[k] for k in range(n - 1)}
@@ -19,16 +19,15 @@ def spline(x, y):
     ##########################
     # mudar derivadas abaixo #
     ##########################
-    matrizB = [(3/h[0])*(a[1]-a[0]) - 3*(np.exp(0))] 
+    matrizB = [(3/h[0])*(a[1]-a[0]) - 3*derivada[0][var]] 
     for k in range(1, n-1):
         linhas = 3*((a[k+1]-a[k])/h[k]) - 3*((a[k]-a[k-1])/h[k-1])
         matrizB.append(linhas)
-    matrizB.append(3*(np.exp(n-1)) - (3/h[n-2])*(a[n-1]-a[n-2]))
+    matrizB.append(3*derivada[1][var] - (3/h[n-2])*(a[n-1]-a[n-2]))
 
     
     c = dict(zip(range(n), crout.solucaoTridiagonal(matrizA, matrizB)))
     #c1 = dict(zip(range(n), np.linalg.solve(matrizA, matrizB)))
-
     
     b = {}
     d = {}
@@ -48,33 +47,37 @@ def spline(x, y):
 
 def main():
     # Ler os dados do arquivo
-    data = np.loadtxt('inputs-outputs/output.txt')
-    
-    # Separar os dados para cada corpo
-    coordenadasY = data
-    coordenadasX = np.arange(len(coordenadasY))
-    # coordenadasY = data[:, 3:6]
-    # coordenadasZ = data[:, 6:]
-    
-    polinomios = spline(coordenadasX ,coordenadasY)
-    plt.scatter(coordenadasX, coordenadasY, zorder=3, s=20, color='black')
-    plt.xlabel('Valor de x')
-    plt.ylabel('Valor de y')
-    plt.title(f'Comparação entre o Método de Spline Vinculado e a função exponencial')
-    for key, value in polinomios.items():
-        def polinomio(x):
-            return eval(value['eq'])
-        t = np.linspace(*value['domain'], 100)
-        plt.plot(t, polinomio(t), label=f"$S_{key}(x)$")
+    data = np.loadtxt('inputs-outputs/dados.txt')
+    derivadas = np.loadtxt('inputs-outputs/derivadas.txt')
+    tempo = data[:, 0]
+    eixo = ['x', 'y', 'z']
+    variavel = ['Posição', 'Velocidade']
+    corpo = 0
+    i = 1
+    while i < 18:
+        corpo += 1
+        for k in range(2):
+            for j in range(3):
+                coordenada = data[:, i]
+                
+                polinomios = spline(tempo, coordenada, derivadas, i-1)
+                plt.scatter(tempo, coordenada, zorder=3, s=20, color='black')
 
-    # plt.legend()
-    exp_function = lambda x: np.exp(x)
-    t = np.linspace(0, len(coordenadasY)-1, 100)
-    plt.plot(t, exp_function(t), label="Exponential Function")
-    plt.savefig('imagens/splineVinculado.png')
+                plt.xlabel(f'Tempo')
+                plt.ylabel(f'{variavel[k]}')
+                plt.title(f'Spline Vinculado Para a {variavel[k]} {eixo[j]} do Corpo {corpo}')
+                for key, value in polinomios.items():
+                    def polinomio(x):
+                        return eval(value['eq'])
+                    t = np.linspace(*value['domain'], 100)
+                    plt.plot(t, polinomio(t), label=f"$S_{key}(x)$", color='black')
+
+                # plt.legend()
+                plt.savefig(f'imagens/splines/splineVinculado{i}.png')
+                plt.clf()
+                if i < 18:
+                    i += 1
+                else:
+                    break
 
 main()
-
-
-
-
